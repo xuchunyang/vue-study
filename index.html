@@ -8,20 +8,32 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
   </head>
   <body>
+    <p id="progress">Fetching data...</p>
     <div id="app">
       <ol>
-        <li v-for="p in projects"><a :href="p + '/index.html'">{{p}}</a></li>
+        <li v-for="p in projects">
+          <a :href="projectLiveUrl(p)" target="_blank">{{p.name}}</a>
+        </li>
       </ol>
     </div>
     <script>
-      const vm = new Vue({
-        el: "#app",
-        data: {
-          // TODO: 如何异步获取数据？
-          apiUrl: "https://api.github.com/repos/xuchunyang/vue-study/contents/",
-          projects: ["01-weather", "02-is-site-down", "03-todo"],
-        },
-      });
+      fetch("https://api.github.com/repos/xuchunyang/vue-study/contents/")
+        .then((res) => res.json())
+        .then((files) => {
+          document.querySelector("#progress").style.display = "none";
+          const projects = files.filter((file) => file.type === "dir");
+          const vm = new Vue({
+            el: "#app",
+            data: {
+              projects,
+            },
+            methods: {
+              projectLiveUrl(p) {
+                return `https://xuchunyang.github.io/vue-study/${p.name}`;
+              },
+            },
+          });
+        });
     </script>
   </body>
 </html>
