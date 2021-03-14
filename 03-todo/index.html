@@ -1,0 +1,78 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <style>
+      .done {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <ol>
+        <li v-for="todo in todos" :key="todo.id">
+          <span :class="[todo.done ? 'done' : '']">{{todo.content}}</span>
+          <button v-if="!todo.done" @click="todo.done = true">Done</button>
+          <button v-else @click="todo.done = false">Undone</button>
+        </li>
+      </ol>
+      <p>
+        Total: {{todos.length}}, Done: {{dones.length}}, Todo:
+        {{undones.length}}
+      </p>
+      <div>
+        <label for="new todo">Add todo: </label>
+        <input
+          type="text"
+          required
+          @keyup.enter="addTodo($event.target.value)"
+        />
+      </div>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          todos: [
+            {
+              id: 0,
+              content: "Learn Vue",
+              done: false,
+            },
+            {
+              id: 1,
+              content: "Build personal blog",
+              done: false,
+            },
+            {
+              id: 2,
+              content: "Build Vue Hello World!",
+              done: true,
+            },
+          ],
+        },
+        computed: {
+          dones() {
+            return this.todos.filter((todo) => todo.done);
+          },
+          undones() {
+            return this.todos.filter((todo) => !todo.done);
+          },
+        },
+        methods: {
+          addTodo(content) {
+            const newTodo = { id: this.todos.length, content, done: false };
+            this.todos.push(newTodo);
+          },
+          completeTodo(todo) {
+            todo.done = true;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
