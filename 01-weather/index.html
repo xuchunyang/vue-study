@@ -1,0 +1,64 @@
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>天气</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <main>
+        <div class="search-box">
+          <input
+            type="text"
+            class="search-bar"
+            placeholder="Search..."
+            v-model="query"
+            @keyup.enter="fetchWeather"
+          />
+        </div>
+
+        <div class="weather-wrap" v-if="weather">
+          <div class="location-box">
+            <div class="location">
+              {{weather.name}}, {{weather.sys.country}}
+            </div>
+            <div class="date">
+              {{new Date(weather.dt * 1000).toDateString()}}
+            </div>
+          </div>
+
+          <div class="weather-box">
+            <div class="temp">{{weather.main.temp}}°C</div>
+            <div class="weather">{{weather.weather[0].main}}</div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          query: "",
+          weather: null,
+        },
+        methods: {
+          buildUrl() {
+            return `https://api.openweathermap.org/data/2.5/weather?q=${this.query}&appid=4fe2dcce8476dc89da0b66ec96c9823d&lang=zh_cn&units=metric`;
+          },
+          fetchWeather() {
+            console.log(`Fetching weather for ${this.query}`);
+            fetch(this.buildUrl())
+              .then((res) => res.json())
+              .then(this.setResults);
+          },
+          setResults(results) {
+            console.log(results);
+            this.weather = results;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
