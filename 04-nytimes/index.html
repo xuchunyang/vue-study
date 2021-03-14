@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>纽约时报之热门故事</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <style>
+      #app {
+        max-width: max-content;
+        margin: 0 auto;
+      }
+
+      #app #section {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>纽约时报之热门故事</h1>
+      <div>
+        <select name="section" id="section" v-model="selected">
+          <option value="" disabled>Select a section</option>
+          <option v-for="section in sections">{{section}}</option>
+        </select>
+      </div>
+      <div>
+        <ol>
+          <li v-for="item in results" :key="item.url">
+            <a :href="item.url" target="_blank">{{item.title}}</a>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          selected: "",
+          sections: `
+          arts, automobiles, books, business, fashion, food, health,
+          home, insider, magazine, movies, nyregion, obituaries, opinion, politics,
+          realestate, science, sports, sundayreview, technology, theater, t-magazine,
+          travel, upshot, us, world`
+            .trim()
+            .split(/\s*,\s*/),
+          results: [],
+        },
+        computed: {
+          apiUrl() {
+            return `https://api.nytimes.com/svc/topstories/v2/${this.selected}.json?api-key=viidYUGaTvPHYDyjb4lQTwH83bWHSYCc`;
+          },
+        },
+        watch: {
+          selected(newSec, oldSec) {
+            fetch(this.apiUrl)
+              .then((res) => res.json())
+              .then((data) => {
+                console.log("DATA", data);
+                this.results = data.results;
+              });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
