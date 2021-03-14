@@ -1,0 +1,47 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>is site down?</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Is site down?</h1>
+      <form @submit.prevent="check">
+        <label for="url">URL: </label>
+        <input
+          id="url"
+          type="url"
+          placeholder="enter url"
+          required
+          v-model="url"
+        />
+        <input type="submit" value="check" />
+        <div>
+          <output v-if="result"
+            ><a href="result.url">{{result.url}}</a> is {{result.isDown ? "down"
+            : "up"}} because {{result.reason}}</output
+          >
+        </div>
+      </form>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          url: "https://example.com",
+          result: null,
+        },
+        methods: {
+          check() {
+            fetch("https://is-site-down.vercel.app/api/check?url=" + this.url)
+              .then((resp) => resp.json())
+              .then((result) => (this.result = result));
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
