@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -16,6 +17,8 @@
       const vm = new Vue({
         el: "#app",
         data: {
+          // TODO: 如何异步获取数据？
+          apiUrl: "https://api.github.com/repos/xuchunyang/vue-study/contents/",
           projects: ["01-weather", "02-is-site-down", "03-todo"],
         },
       });
