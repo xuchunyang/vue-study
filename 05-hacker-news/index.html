@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hacker News</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <style>
+      #app {
+        width: max-content;
+        margin: 0 auto;
+      }
+
+      h1 {
+          text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Hacker News</h1>
+      <p v-if="loading">Loading</p>
+      <ol v-else>
+        <li v-for="item in results"><a :href="item.url">{{item.title}}</a></li>
+      </ol>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          apiUrl: "https://api.hackerwebapp.com/news",
+          loading: true,
+          results: [],
+        },
+        methods: {
+          setResults(results) {
+            this.results = results;
+            this.loading = false;
+          },
+        },
+        created() {
+          fetch(this.apiUrl)
+            .then((res) => res.json())
+            .then(this.setResults);
+        },
+      });
+    </script>
+  </body>
+</html>
