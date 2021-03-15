@@ -8,32 +8,35 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
   </head>
   <body>
-    <p id="progress">Fetching data...</p>
     <div id="app">
-      <ol>
+      <p v-if="loading">Fetching data...</p>
+      <ol v-else>
         <li v-for="p in projects">
           <a :href="projectLiveUrl(p)" target="_blank">{{p.name}}</a>
         </li>
       </ol>
     </div>
     <script>
-      fetch("https://api.github.com/repos/xuchunyang/vue-study/contents/")
-        .then((res) => res.json())
-        .then((files) => {
-          document.querySelector("#progress").style.display = "none";
-          const projects = files.filter((file) => file.type === "dir");
-          const vm = new Vue({
-            el: "#app",
-            data: {
-              projects,
-            },
-            methods: {
-              projectLiveUrl(p) {
-                return `https://xuchunyang.github.io/vue-study/${p.name}`;
-              },
-            },
-          });
-        });
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          loading: true,
+          projects: [],
+        },
+        created() {
+          fetch("https://api.github.com/repos/xuchunyang/vue-study/contents/")
+            .then((res) => res.json())
+            .then((files) => {
+              this.projects = files.filter((file) => file.type === "dir");
+              this.loading = false;
+            });
+        },
+        methods: {
+          projectLiveUrl(p) {
+            return `https://xuchunyang.github.io/vue-study/${p.name}`;
+          },
+        },
+      });
     </script>
   </body>
 </html>
