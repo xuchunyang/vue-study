@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emacs Lisp Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style>
+      body {
+        max-width: max-content;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      form section {
+        margin: 1em 0;
+      }
+
+      form label {
+        display: inline-block;
+        width: 120px;
+      }
+
+      pre {
+        background-color: lightgray;
+        border: 1px solid black;
+        box-shadow: 5px 5px teal;
+        font-size: 16px;
+        padding: 1em;
+      }
+
+      footer {
+        margin-top: 2rem;
+        text-align: center;
+        color: #666;
+        font-size: 80%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Emacs Lisp Docs</h1>
+      <form @submit.prevent="search">
+        <section>
+          <label for="version">Emacs Version:</label>
+          <select name="version" id="version" v-model="version">
+            <option v-for="ver in versions">{{ ver }}</option>
+          </select>
+        </section>
+        <section>
+          <label for="symbol">Symbol:</label>
+          <input id="symbol" type="search" required v-model="symbol" />
+        </section>
+      </form>
+      <div id="result" v-loading="loading">
+        <p v-if="error">
+          <el-alert :title="error" type="error" effect="light"> </el-alert>
+        </p>
+        <template v-else>
+          <pre v-if="doc">{{ doc }}</pre>
+          <pre v-if="demo">{{ demo }}</pre>
+        </template>
+      </div>
+      <footer>
+        The above docstring is part of GNU Emacs and available under GPL.
+      </footer>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data() {
+          return {
+            versions: ["25.1", "26.1", "27.1"],
+            version: "27.1",
+            symbol: "",
+            doc: "",
+            demo: "",
+            error: "",
+            loading: false,
+          };
+        },
+        methods: {
+          checkSearchParams() {
+            return this.version && this.symbol;
+          },
+          search() {
+            if (!this.checkSearchParams()) {
+              this.$message({
+                type: "error",
+                message: `缺少参数：version = ${this.version}, symbol = ${this.symbol}`,
+                showClose: true,
+              });
+              return;
+            }
+            this.loading = true;
+            fetch(
+              `https://describe-symbol.vercel.app/api/search?version=${this.version}&symbol=${this.symbol}`
+            )
+              .then((res) => res.json())
+              .then(this.setResults);
+          },
+          setResults(results) {
+            console.log("results: ", results);
+            this.loading = false;
+            if ("error" in results) {
+              this.error = results.error;
+              return;
+            }
+            this.doc = results.data[0].doc;
+            this.demo = results.data[0].demo;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
