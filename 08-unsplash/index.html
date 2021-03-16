@@ -19,7 +19,7 @@
       }
 
       img {
-        max-width: 100%;
+        max-width: 90%;
       }
     </style>
   </head>
@@ -31,9 +31,28 @@
         v-loading="loading"
         element-loading-text="下载图片中"
       ></p>
-      <p v-else><unsplash-image :json="json"></unsplash-image></p>
+      <p v-else>
+        <unsplash-image :json="json"></unsplash-image>
+      </p>
     </div>
     <script>
+        // tood: 这 2 个组件，这么组织不好
+      Vue.component("unsplash-image-sizes", {
+        props: ["urls", "initialType"],
+        methods: {
+          onChange() {
+            console.log("onChange", this, arguments);
+            $emit("changeSize", $event.target.value);
+          },
+        },
+        template: `
+            <div>
+              <label for="sizes">Change image size:</label>
+              <select id="sizes" @change="$emit('change-size', $event.target.value)">
+                  <option v-for="(url, typ) in urls" :value="url" :selected="initialType === typ"> {{typ}} </option>
+              </select>
+            </div>`,
+      });
       Vue.component("unsplash-image", {
         props: ["json"],
         data() {
@@ -45,7 +64,16 @@
 
           return { img, html };
         },
-        template: `<a :href="html"><img :src="img.src" :alt="img.alt"></img></a>`,
+        methods: {
+          onChangeSize(url) {
+            console.log("onChangeSize:", url);
+            this.img.src = url;
+          },
+        },
+        template: `<div>
+            <p><unsplash-image-sizes @change-size="onChangeSize" :urls="json.urls" :initial-type="'full'"> </unsplash-image-sizes></p>
+            <p><a :href="html"><img :src="img.src" :alt="img.alt"></img></a></p>
+            </div>`,
       });
       const vm = new Vue({
         el: "#app",
