@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unsplash - 随机图片</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style>
+      body {
+        text-align: center;
+      }
+
+      img {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Unsplash - 随机图片</h1>
+      <p
+        v-if="loading"
+        v-loading="loading"
+        element-loading-text="下载图片中"
+      ></p>
+      <p v-else><unsplash-image :json="json"></unsplash-image></p>
+    </div>
+    <script>
+      Vue.component("unsplash-image", {
+        props: ["json"],
+        data() {
+          const src = this.json.urls.full;
+          const alt = this.json.alt_description;
+          const img = { src, alt };
+
+          const html = this.json.links.html;
+
+          return { img, html };
+        },
+        template: `<a :href="html"><img :src="img.src" :alt="img.alt"></img></a>`,
+      });
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          loading: true,
+          json: null,
+        },
+        methods: {
+          setResults(json) {
+            this.json = json;
+            this.loading = false;
+          },
+        },
+        created() {
+          fetch(
+            "https://api.unsplash.com/photos/random?client_id=w84Usx097OcVja5QA5NhEcvv9t8l5LZlKex5yjN8Ues"
+          )
+            .then((resp) => resp.json())
+            .then(this.setResults);
+        },
+      });
+    </script>
+  </body>
+</html>
