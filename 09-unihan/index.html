@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unihan</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style>
+      body {
+        text-align: center;
+        margin: 0 auto;
+        max-width: 40em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Unihan</h1>
+      <form
+        @submit.prevent="search"
+        v-loading="loading"
+        element-loading-text="搜索中..."
+      >
+        <input type="text" v-model="query" placeholder="Search..." required />
+      </form>
+      <div v-if="results">
+        <el-table :data="tableData" stripe>
+          <el-table-column prop="prop" label="属性"> </el-table-column>
+          <el-table-column prop="value" label="值"> </el-table-column>
+        </el-table>
+      </div>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data() {
+          return {
+            query: "",
+            loading: false,
+            results: null,
+          };
+        },
+        computed: {
+          tableData() {
+            if (this.results === null) return;
+            return Object.entries(this.results).map((kv) => {
+              const [prop, value] = kv;
+              return { prop, value };
+            });
+          },
+        },
+        methods: {
+          setResults(results) {
+            this.results = results;
+            this.loading = false;
+          },
+          search() {
+            console.log("Searching " + this.query);
+            this.loading = true;
+            fetch("https://unihan.vercel.app/api/unihan?q=" + this.query)
+              .then((resp) => resp.json())
+              .then(this.setResults);
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
