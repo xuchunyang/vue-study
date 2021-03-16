@@ -13,6 +13,8 @@
     />
     <!-- 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 自动补全 -->
+    <!-- <script src="https://unpkg.com/@trevoreyre/autocomplete-vue"></script> -->
     <style>
       body {
         max-width: max-content;
@@ -50,6 +52,8 @@
   </head>
   <body>
     <div id="app">
+      <!-- todo: 自动补全 -->
+      <!-- <autocomplete :search="completeSymbols"></autocomplete> -->
       <h1>Emacs Lisp Docs</h1>
       <form @submit.prevent="search">
         <section>
@@ -91,6 +95,9 @@
           };
         },
         methods: {
+          completeSymbols() {
+            return ["one", "two", "three"];
+          },
           checkSearchParams() {
             return this.version && this.symbol;
           },
