@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>货币转换</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style>
+      #app {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>货币转换</h1>
+      <div
+        v-if="loading"
+        v-loading="loading"
+        element-loading-text="初始化中..."
+      ></div>
+      <div v-else>
+        <form>
+          <input type="text" v-model="aAmount" />
+          <select v-model="aCurrency">
+            <option v-for="(val, key) in rates" :value="key">{{key}}</option>
+          </select>
+
+          <input type="text" v-model="bAmount" />
+          <select v-model="bCurrency">
+            <option v-for="(val, key) in rates" :value="key">{{key}}</option>
+          </select>
+        </form>
+      </div>
+    </div>
+    <script>
+      //   https://api.exchangeratesapi.io/latest?base=USD
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          loading: false,
+          rates: {},
+          aAmount: 0,
+          bAmount: 0,
+          aCurrency: "JPY",
+          bCurrency: "USD",
+        },
+        watch: {
+            // FIXME: 这有问题，不如直接用管理状态，不用 v-model
+          aAmount(newVal, oldVal) {
+            console.log("aAmount changed");
+            this.aUpdated();
+          },
+          aCurrency() {
+            console.log("aCurrency changed");
+            this.aUpdated();
+          },
+          bAmount(newVal, oldVal) {
+            console.log("bAmount changed");
+            this.bUpdated();
+          },
+          bCurrency(newVal, oldVal) {
+            console.log("bCurrency changed");
+            this.bUpdated();
+          },
+        },
+        methods: {
+          setResults(results) {
+            this.rates = results.rates;
+            this.loading = false;
+          },
+          convert(amount, from, to) {
+            const USD = amount / this.rates[from];
+            return USD * this.rates[to];
+          },
+          aUpdated() {
+            this.bAmount = this.convert(
+              Number(this.aAmount),
+              this.aCurrency,
+              this.bCurrency
+            );
+          },
+          bUpdated() {
+            this.aAmount = this.convert(
+              Number(this.bAmount),
+              this.bCurrency,
+              this.aCurrency
+            );
+          },
+        },
+        // TODO created 和 mounted 分别时什么？区别
+        created() {
+          fetch("https://api.exchangeratesapi.io/latest?base=USD")
+            .then((resp) => resp.json())
+            .then(this.setResults);
+        },
+      });
+    </script>
+  </body>
+</html>
