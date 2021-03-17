@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+    <style>
+      body {
+        text-align: center;
+      }
+
+      article > p:first-of-type {
+        font-size: 1.2em;
+        line-height: 2;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Quote</h1>
+      <button @click="debounceUpdate">debounceUpdate</button>
+      <button @click="update">update</button>
+      <p v-if="loading">Loading...</p>
+      <article v-else>
+        <p style="white-space: pre">{{content}}</p>
+        <a :href="href">{{href}}</a>
+      </article>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          loading: false,
+          content: "",
+          href: "",
+        },
+        created() {
+          this.debounceUpdate = _.debounce(this.update, 500);
+        },
+        methods: {
+          update() {
+            this.loading = true;
+            fetch(
+              "https://fortune.cadr.xyz/api/fortune?command=fortune+tang300+song100"
+            )
+              .then((resp) => resp.json())
+              .then((results) => {
+                this.loading = false;
+                this.content = results.content;
+                this.href = `https://fortune.cadr.xyz/?sha1=${results.sha1}`;
+              });
+          },
+        },
+      });
+      vm.update();
+    </script>
+  </body>
+</html>
