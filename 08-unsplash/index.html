@@ -16,10 +16,7 @@
     <style>
       body {
         text-align: center;
-      }
-
-      img {
-        max-width: 90%;
+        margin: 0;
       }
     </style>
   </head>
@@ -36,7 +33,7 @@
       </p>
     </div>
     <script>
-        // tood: 这 2 个组件，这么组织不好
+      // tood: 这 2 个组件，这么组织不好
       Vue.component("unsplash-image-sizes", {
         props: ["urls", "initialType"],
         methods: {
@@ -56,7 +53,7 @@
       Vue.component("unsplash-image", {
         props: ["json"],
         data() {
-          const src = this.json.urls.full;
+          const src = this.json.urls.regular;
           const alt = this.json.alt_description;
           const img = { src, alt };
 
@@ -71,7 +68,7 @@
           },
         },
         template: `<div>
-            <p><unsplash-image-sizes @change-size="onChangeSize" :urls="json.urls" :initial-type="'full'"> </unsplash-image-sizes></p>
+            <p><unsplash-image-sizes @change-size="onChangeSize" :urls="json.urls" :initial-type="'regular'"> </unsplash-image-sizes></p>
             <p><a :href="html"><img :src="img.src" :alt="img.alt"></img></a></p>
             </div>`,
       });
