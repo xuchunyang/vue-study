@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>灵感搜集</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <style>
+      #app {
+        max-width: max-content;
+        margin: 0 auto;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      ul li {
+        margin: 1em 0;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1em;
+        box-shadow: 2px 2px rgba(0, 0, 0, 0.2);
+        position: relative;
+        padding-right: 2em;
+      }
+      .todo {
+        color: #333;
+      }
+      .done {
+        color: #666;
+      }
+      .canceled {
+        color: #999;
+        text-decoration: line-through;
+      }
+      .x {
+        position: absolute;
+        top: 0px;
+        right: 5px;
+        color: #999;
+        cursor: pointer;
+      }
+      .x:hover {
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>灵感搜集</h1>
+      <p>数据存在 localStorage 里</p>
+      <ul>
+        <li>
+          <form @submit.prevent="addNewIdea">
+            <label for="idea">New Idea:</label>
+            <input type="text" id="idea" v-model="newIdeaContent" />
+          </form>
+        </li>
+        <li v-for="item in undeletedIdeas">
+          <select @change="changeState(item, $event.target.value)">
+            <option value="todo" :selected="item.status === TODO">
+              ☐ TODO
+            </option>
+            <option value="done" :selected="item.status === DONE">
+              ☑ DONE
+            </option>
+            <option value="canceled" :selected="item.status === CANCELED">
+              ☒ CANCELED
+            </option>
+          </select>
+          <span :class="item.status"> {{ item.content }} </span>
+          <span class="x" title="Delete" @click="deleteIdea(item)">x</span>
+        </li>
+      </ul>
+    </div>
+    <script>
+      const [TODO, DONE, CANCELED, DELETED] = [
+        "todo",
+        "done",
+        "canceled",
+        "DELETED",
+      ];
+      // ☐ ☑ ☒
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          TODO,
+          DONE,
+          CANCELED,
+          DELETED,
+          ideas: [],
+          newIdeaContent: "",
+        },
+        computed: {
+          undeletedIdeas() {
+            return this.ideas.filter((idea) => idea.status !== DELETED);
+          },
+        },
+        mounted() {
+          if (localStorage.getItem("ideas")) {
+            try {
+              this.ideas = JSON.parse(localStorage.getItem("ideas"));
+            } catch (e) {
+              localStorage.removeItem("ideas");
+            }
+          } else {
+            const defaultIdeasForTesting = [
+              {
+                content: "Make a webpage to collect ideas",
+                status: DONE,
+              },
+              {
+                content:
+                  "了解更复杂的页面交互元素，如按钮、下拉菜单、弹出框、通知",
+                status: TODO,
+              },
+              {
+                content: "喝水",
+                status: CANCELED,
+              },
+            ];
+            this.ideas = defaultIdeasForTesting;
+            this.saveIdeas();
+          }
+        },
+        methods: {
+          saveIdeas() {
+            console.log("saveIdeas");
+            const parsed = JSON.stringify(this.ideas);
+            localStorage.setItem("ideas", parsed);
+          },
+          changeState(idea, newState) {
+            console.log("changeState called");
+            idea.status = newState;
+            this.saveIdeas();
+          },
+          addNewIdea() {
+            this.ideas.push({
+              content: this.newIdeaContent,
+              status: TODO,
+            });
+            this.saveIdeas();
+            this.newIdeaContent = "";
+          },
+          // todo: 如何真正的删除数组中的一个元素
+          deleteIdea(idea) {
+            console.log("deleteIdea", idea);
+            idea.status = DELETED;
+            this.saveIdeas();
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
