@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LoL</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style>
+      #app {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      ol {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+
+      .card {
+        cursor: pointer;
+      }
+
+      .card .img {
+        display: block;
+      }
+
+      .card .name {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <p v-if="status.loading">{{ status.msg }}</p>
+      <ol v-else>
+        <!-- TODO: 分页 -->
+        <li v-for="c in champions">
+          <div class="card" @click="showDetails(c)">
+            <img class="img" :src="apis.img(version, c)" :alt="c.name" />
+            <div class="name">{{ c.name }}</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          apis: {
+            versions: "https://ddragon.leagueoflegends.com/api/versions.json",
+            languages: "https://ddragon.leagueoflegends.com/cdn/languages.json",
+            champions(version = "11.6.1", language = "en_US") {
+              return `https://ddragon.leagueoflegends.com/cdn/${version}/data/${language}/champion.json`;
+            },
+            img(version = "11.6.1", champion) {
+              return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champion.image.full}`;
+            },
+            skins(name) {
+              return `https://ddragon.leagueoflegends.com/cdn/${this.version}/data/${this.language}/champion/${name}.json`;
+            },
+          },
+          status: {
+            loading: false,
+            msg: "",
+          },
+          champions: [],
+          version: null,
+          language: "en_US",
+        },
+        methods: {
+          getLatestVersion() {
+            this.status = {
+              loading: true,
+              msg: "Getting latest version...",
+            };
+            return fetch(this.apis.versions)
+              .then((r) => r.json())
+              .then((versions) => {
+                console.log("versions:", versions);
+                this.status = { loading: false };
+                const latest = versions[0];
+                return latest;
+              });
+          },
+          getChampions() {
+            this.getLatestVersion().then((latestVersion) => {
+              this.version = latestVersion;
+              this.status = { loading: true, msg: "Getting champions..." };
+              fetch(this.apis.champions(latestVersion))
+                .then((r) => r.json())
+                .then((j) => {
+                  this.status = { loading: false };
+                  this.champions = j.data;
+                });
+            });
+          },
+          getSkins(name) {
+            // fixme cho'gath
+            return fetch(this.apis.skins(name))
+              .then((res) => res.json())
+              .then((j) => (this.champions[name].skins = j.data.skins));
+          },
+          // todo: show skins pictures
+          showDetails(c) {
+            console.log("detail:", c);
+            alert(JSON.stringify(c, null, 2));
+          },
+        },
+        created() {
+          this.getChampions();
+        },
+      });
+    </script>
+  </body>
+</html>
