@@ -6,6 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MELPA clone using Vue</title>
     <script src="https://unpkg.com/vue"></script>
+    <!-- 输入完，有个固定延迟，体验不好 -->
+    <script src="https://unpkg.com/lodash"></script>
+    <style>
+      #app {
+        line-height: 1.6;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      input[type="search"] {
+        font-size: inherit;
+        display: block;
+        width: 100%;
+        padding: 8px;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -15,8 +31,13 @@
           Current List of {{packages.length}} Packages {{totalDownloads}}
           downloads to date
         </p>
-        <input type="search" v-model="query" placeholder="Enter filter terms" />
+        <input
+          type="search"
+          v-model.trim="query"
+          placeholder="Enter filter terms"
+        />
         <p>{{matches.length}} matching package(s)</p>
+        <!-- TODO: 分页如何操作？ -->
         <table>
           <thead>
             <tr>
@@ -43,18 +64,29 @@
         data: {
           loading: false,
           packages: [],
+          matches: [],
           query: "",
         },
         computed: {
           totalDownloads() {
             return this.packages.reduce((sum, p) => (sum += p.downloads), 0);
           },
-          matches() {
-            if (this.query === "") return this.packages;
+        },
+        methods: {
+          search() {
+            if (this.query === "") {
+              this.matches = this.packages;
+              return;
+            }
 
-            return this.packages.filter(
+            this.matches = this.packages.filter(
               (p) => p.name.includes(this.query) || p.desc.includes(this.query)
             );
+          },
+        },
+        watch: {
+          query(newQuery, oldQuery) {
+            this.debouncedSearch();
           },
         },
         created() {
@@ -68,7 +100,10 @@
                 const [name, version, desc, downloads] = arrPkg;
                 return { name, version, desc, downloads };
               });
+              this.search();
               this.loading = false;
+
+              this.debouncedSearch = _.debounce(this.search, 100);
             });
         },
       });
