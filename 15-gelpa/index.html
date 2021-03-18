@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GNU ELPA</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <style>
+      #app {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      input[type="search"] {
+        display: block;
+        width: 100%;
+        padding: 0.5em;
+        margin-bottom: 1em;
+      }
+
+      table {
+        /* table-layout: fixed; */
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <p v-if="loading">Loading...</p>
+      <div v-else>
+        <input type="search" v-model.trim="query" placeholder="Search..." />
+        <template v-if="filteredPackages.length">
+          <table>
+            <thead>
+              <tr>
+                <th>Package</th>
+                <th>Version</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="p in filteredPackages">
+                <td>{{p.name}}</td>
+                <td>{{p.version}}</td>
+                <td>{{p.desc}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Found {{filteredPackages.length}} packages</p>
+        </template>
+        <p v-else>No results</p>
+      </div>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          loading: false,
+          packages: [],
+          query: "",
+        },
+        // todo: highlight matched name or desc
+        computed: {
+          filteredPackages() {
+            if (this.query === "") return this.packages;
+
+            return this.packages.filter(
+              (p) => p.name.includes(this.query) || p.desc.includes(this.query)
+            );
+          },
+        },
+        created() {
+          this.loading = true;
+          fetch(
+            "https://study-1258907199.cos.ap-nanjing.myqcloud.com/gelpa-2021-03-18.json"
+          )
+            .then((res) => res.json())
+            .then((pkgs) => {
+              this.loading = false;
+              this.packages = pkgs;
+            });
+        },
+      });
+    </script>
+  </body>
+</html>
