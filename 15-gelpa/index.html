@@ -10,6 +10,7 @@
       #app {
         max-width: 900px;
         margin: 0 auto;
+        line-height: 1.8;
       }
 
       input[type="search"] {
@@ -22,6 +23,16 @@
       table {
         /* table-layout: fixed; */
         width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid #ddd;
+      }
+
+      .highlight {
+        background-color: rgba(216, 203, 90, 0.301);
       }
     </style>
   </head>
@@ -32,7 +43,7 @@
         <input type="search" v-model.trim="query" placeholder="Search..." />
         <template v-if="filteredPackages.length">
           <table>
-            <thead>
+            <thead v-if="query === ''">
               <tr>
                 <th>Package</th>
                 <th>Version</th>
@@ -41,9 +52,9 @@
             </thead>
             <tbody>
               <tr v-for="p in filteredPackages">
-                <td>{{p.name}}</td>
+                <td :class="{highlight: p.isNameMatched}">{{p.name}}</td>
                 <td>{{p.version}}</td>
-                <td>{{p.desc}}</td>
+                <td :class="{highlight: p.isDescMatched}">{{p.desc}}</td>
               </tr>
             </tbody>
           </table>
@@ -65,9 +76,17 @@
           filteredPackages() {
             if (this.query === "") return this.packages;
 
-            return this.packages.filter(
-              (p) => p.name.includes(this.query) || p.desc.includes(this.query)
-            );
+            const matches = [];
+            for (const p of this.packages) {
+              const isNameMatched = p.name.includes(this.query);
+              const isDescMatched = p.desc.includes(this.query);
+
+              if (!(isNameMatched || isDescMatched)) continue;
+
+              const np = Object.assign({ isNameMatched, isDescMatched }, p);
+              matches.push(np);
+            }
+            return matches;
           },
         },
         created() {
