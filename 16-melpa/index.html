@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MELPA clone using Vue</title>
+    <script src="https://unpkg.com/vue"></script>
+  </head>
+  <body>
+    <div id="app">
+      <p v-if="loading">Loading...</p>
+      <template v-else>
+        <p>
+          Current List of {{packages.length}} Packages {{totalDownloads}}
+          downloads to date
+        </p>
+        <input type="search" v-model="query" placeholder="Enter filter terms" />
+        <p>{{matches.length}} matching package(s)</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Package</th>
+              <th>Description</th>
+              <th>Version</th>
+              <th>DLs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="p in matches">
+              <td>{{p.name}}</td>
+              <td>{{p.desc}}</td>
+              <td>{{p.version}}</td>
+              <td>{{p.downloads}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+    </div>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          loading: false,
+          packages: [],
+          query: "",
+        },
+        computed: {
+          totalDownloads() {
+            return this.packages.reduce((sum, p) => (sum += p.downloads), 0);
+          },
+          matches() {
+            if (this.query === "") return this.packages;
+
+            return this.packages.filter(
+              (p) => p.name.includes(this.query) || p.desc.includes(this.query)
+            );
+          },
+        },
+        created() {
+          this.loading = true;
+          fetch(
+            "https://study-1258907199.cos.ap-nanjing.myqcloud.com/melpa.json"
+          )
+            .then((res) => res.json())
+            .then((results) => {
+              this.packages = results.map((arrPkg) => {
+                const [name, version, desc, downloads] = arrPkg;
+                return { name, version, desc, downloads };
+              });
+              this.loading = false;
+            });
+        },
+      });
+    </script>
+  </body>
+</html>
