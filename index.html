@@ -109,6 +109,21 @@
               this.loading = false;
             });
         },
+        methods: {
+          // date is a string, date.slice(0, 10) is much easier
+          formatDate(date) {
+            const d = new Date(date);
+            let year = d.getFullYear();
+            let month = d.getMonth() + 1;
+            let day = d.getDate();
+
+            return `${year
+              .toString()
+              .padStart(4, "0")}-${month
+              .toString()
+              .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+          },
+        },
         template: `
         <div class="commits">
         <h1>Latest 10 Commits</h1>
@@ -117,7 +132,7 @@
         <li v-for="commit in commits">
         <a class="sha" :href="commit.html_url"> {{ commit.sha.slice(0, 6) }}</a> 
         - 
-        <span>{{ commit.commit.author.date }}</span>
+        <span>{{ formatDate(commit.commit.author.date) }}</span>
         - 
         {{ commit.commit.message }}
         </li>
