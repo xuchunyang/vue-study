@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TLDR</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/lodash"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      #app {
+        width: 800px;
+        margin: 0 auto;
+        line-height: 1.5;
+      }
+
+      .search-input {
+        font-family: inherit;
+        font-size: 1.2rem;
+        padding: 0.5em;
+        width: 100%;
+      }
+
+      .search-input:focus {
+        /* box-shadow: black 0px 5px; */
+        border-radius: 10px;
+        /* border-color: red; */
+        /* border: 1px solid gold; */
+        outline: none;
+      }
+
+      .results-box {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        padding: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- todo: 异步有问题 -->
+    <!-- todo: 更新 URL -->
+    <!-- todo: 单文件 .vue -->
+    <div id="app">
+      <div class="search-box">
+        <input
+          :disabled="currentComponent === 'tldr-loading'"
+          class="search-input"
+          type="search"
+          placeholder="Search command..."
+          v-model.trim="query"
+        />
+      </div>
+      <div class="results-box">
+        <component :is="currentComponent" :command="command"></component>
+      </div>
+    </div>
+    <script>
+      Vue.component("tldr-loading", {
+        template: `<p>Loading...</p>`,
+      });
+      Vue.component("tldr-help", {
+        template: `<p>Type in the input box</p>`,
+      });
+      Vue.component("tldr-not-found", {
+        template: `<p>Oops! Command not found!</p>`,
+      });
+      Vue.component("tldr-result", {
+        props: ["command"],
+        data() {
+          return {
+            loading: false,
+          };
+        },
+        template: `<div>
+            <p v-if="loading">
+                Loading {{ command.name }}...
+            </p>
+            <div v-else v-html="html"></div>
+        </div>`,
+        methods: {
+          setResults(results) {
+            this.loading = false;
+
+            markdown = atob(results.content);
+            this.html = marked(markdown);
+          },
+          update() {
+            this.loading = true;
+
+            const name = this.command.name;
+            const platform = this.command.platform[0];
+            const url = `https://api.github.com/repos/tldr-pages/tldr/contents/pages/${platform}/${name}.md?ref=master`;
+            fetch(url)
+              .then((resp) => resp.json())
+              .then(this.setResults);
+          },
+        },
+        created() {
+          console.log(
+            `tldr-result: created called, command = ${this.command.name}`
+            // JSON.stringify(this.command, null, 2)
+          );
+
+          this.update();
+
+          this.debouncedUpdate = _.debounce(this.update, 3000);
+        },
+        watch: {
+          command(newCommand, oldCommand) {
+            console.log(
+              `command changed ${oldCommand.name} => ${newCommand.name}`
+            );
+
+            this.debouncedUpdate();
+          },
+        },
+      });
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          currentComponent: "tldr-loading",
+          commands: [],
+          command: {},
+          query: "",
+        },
+        methods: {
+          getDoc(command) {
+            const name = command.name;
+            const platform = command.platform[0];
+
+            const url = `https://api.github.com/repos/tldr-pages/tldr/contents/pages/${platform}/${name}.md?ref=master`;
+
+            fetch(url)
+              .then((resp) => resp.json())
+              .then((data) => {});
+          },
+        },
+        watch: {
+          query(newQuery, oldQuery) {
+            console.log(`query changed: ${oldQuery} => ${newQuery}`);
+            if (this.query === "") {
+              this.currentComponent = "tldr-help";
+              return;
+            }
+
+            const found = this.commands.find((cmd) => cmd.name === this.query);
+            if (found === undefined) {
+              this.currentComponent = "tldr-not-found";
+              return;
+            }
+            this.currentComponent = "tldr-result";
+            this.command = found;
+          },
+        },
+        created() {
+          fetch(
+            "https://raw.githubusercontent.com/tldr-pages/tldr-pages.github.io/master/assets/index.json"
+          )
+            .then((resp) => resp.json())
+            .then((results) => {
+              this.commands = results.commands;
+              this.currentComponent = "tldr-help";
+            });
+        },
+      });
+    </script>
+  </body>
+</html>
