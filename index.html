@@ -6,24 +6,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vue Study</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <style>
+      #app {
+        max-width: 900px;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      a:link,
+      a:visited {
+        color: inherit;
+      }
+
+      a:hover {
+        /* text-decoration: underline; */
+        /* color: white; */
+        /* color: inherit; */
+      }
+
+      .projects .list {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        flex: 1 1 0px;
+      }
+
+      .projects .list li {
+        color: rgb(57, 122, 187);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        padding: 1em;
+        flex-basis: 125px;
+      }
+
+      .projects .list li:hover {
+        cursor: pointer;
+        color: white;
+        background-color: rgb(57, 122, 187);
+        box-shadow: rgba(0, 0, 0, 0.8) 0 0 10px;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
+      <projects></projects>
+    </div>
+    <script>
+      Vue.component("projects", {
+        data() {
+          return {
+            loading: false,
+            projects: [],
+          };
+        },
+        template: `
+        <div class="projects">
+      <h1>Projects</h1>
       <p v-if="loading">Fetching data...</p>
-      <ol v-else>
+      <div v-else>
+      <ol class="list">
         <li v-for="p in projects">
           <a :href="projectLiveUrl(p)" target="_blank">{{p.name}}</a>
         </li>
       </ol>
-    </div>
-    <script>
-      const vm = new Vue({
-        el: "#app",
-        data: {
-          loading: true,
-          projects: [],
-        },
+      </div>
+      </div>
+        `,
         created() {
+          this.loading = true;
           fetch("https://api.github.com/repos/xuchunyang/vue-study/contents/")
             .then((res) => res.json())
             .then((files) => {
@@ -36,6 +90,10 @@
             return `https://xuchunyang.github.io/vue-study/${p.name}`;
           },
         },
+      });
+
+      const vm = new Vue({
+        el: "#app",
       });
     </script>
   </body>
