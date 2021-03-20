@@ -66,7 +66,13 @@
           return {
             loading: false,
             projects: [],
+            ignored: ["18-single-file-vue"],
           };
+        },
+        computed: {
+          filteredProjects() {
+            return this.projects.filter((p) => !this.ignored.includes(p.name));
+          },
         },
         template: `
         <div class="projects">
@@ -74,7 +80,7 @@
       <p v-if="loading">Fetching data...</p>
       <div v-else>
       <ol class="list">
-        <li v-for="p in projects">
+        <li v-for="p in filteredProjects">
           <a :href="projectLiveUrl(p)" target="_blank">{{p.name}}</a>
         </li>
       </ol>
