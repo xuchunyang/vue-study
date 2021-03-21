@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Router Testing</title>
+    <script src="https://unpkg.com/vue"></script>
+    <style>
+      body {
+        max-width: 880px;
+        margin: 0 auto;
+      }
+
+      nav {
+        display: flex;
+        justify-content: flex-start;
+      }
+
+      nav a {
+        padding: 0.5em;
+        margin-right: 1em;
+      }
+
+      nav a:link,
+      nav a:visited {
+        color: blue;
+        text-decoration: none;
+      }
+
+      nav a:hover {
+        background-color: blue;
+        color: white;
+      }
+
+      nav a.active {
+        text-decoration: overline;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <nav>
+        <a
+          v-for="p in pages"
+          :href="p.path"
+          @click.prevent="go(p.path)"
+          :class="{active: p.path === currentRoute}"
+          >{{ p.name }}</a
+        >
+      </nav>
+      <page-content :current-route="currentRoute"></page-content>
+    </div>
+    <script>
+      const pages = [
+        {
+          name: "Home",
+          path: "/",
+          option: {
+            template: "<h1>Home page</h1>",
+          },
+        },
+        {
+          name: "Blog",
+          path: "/blog",
+          option: {
+            template: "<h1>My Blogs</h1>",
+          },
+        },
+        {
+          name: "About",
+          path: "/about",
+          option: {
+            template: "<h1>About Me</h1>",
+          },
+        },
+      ];
+
+      const c = Vue.component("page-content", {
+        props: ["currentRoute"],
+        data() {
+          return {};
+        },
+        computed: {
+          ViewComponent() {
+            const page = pages.find((p) => this.currentRoute === p.path);
+            return page.option;
+          },
+        },
+        render(h) {
+          return h(this.ViewComponent);
+        },
+      });
+
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          pages: pages,
+          currentRoute: "/",
+        },
+        methods: {
+          go(path) {
+            history.pushState(null, "", path);
+            this.currentRoute = window.location.pathname;
+          },
+        },
+      });
+
+      window.addEventListener("popstate", (event) => {
+        vm.currentRoute = window.location.pathname;
+      });
+    </script>
+  </body>
+</html>
