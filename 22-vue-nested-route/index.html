@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Nested Route</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+  </head>
+  <body>
+    <div id="app">
+      <router-link to="/user/foo">/user/foo</router-link>
+      <router-link to="/user/foo/profile">/user/foo/profile</router-link>
+      <router-link to="/user/foo/posts">/user/foo/posts</router-link>
+      <router-link :to="{ name: 'user', params: { id: 'bar' } }"
+        >/user/bar</router-link
+      >
+
+      <router-view></router-view>
+    </div>
+    <script>
+      const User = {
+        template: `<div>
+                <h1>User {{ $route.params.id }}</h1>
+                <router-view></router-view>
+                <router-view name="summary"></router-view>
+                </div>`,
+      };
+
+      const UserProfile = {
+        template: `<div>profile...</div>`,
+      };
+
+      const UserPosts = {
+        template: `<div>posts...</div>`,
+      };
+
+      const UserHome = {
+        template: "<div>Home</div>",
+      };
+
+      const UserPostsSummary = {
+        template: "<p>总共 3 篇文章，2.3 万字。</p>",
+      };
+
+      const routes = [
+        {
+          path: "/user/:id",
+          component: User,
+          children: [
+            {
+              name: "user",
+              path: "",
+              component: UserHome,
+            },
+            {
+              path: "profile",
+              component: UserProfile,
+            },
+            {
+              path: "posts",
+              components: {
+                default: UserPosts,
+                summary: UserPostsSummary,
+              },
+            },
+          ],
+        },
+        {
+          path: "*",
+          component: { template: "<h1>404</h1>" },
+        },
+      ];
+
+      const router = new VueRouter({ routes });
+
+      const vm = new Vue({ router }).$mount("#app");
+    </script>
+  </body>
+</html>
