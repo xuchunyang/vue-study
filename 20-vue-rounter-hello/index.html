@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学习 Vue Router</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+    <style>
+      .router-link-active {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Hello Vue Router!</h1>
+      <p>
+        <router-link to="/foo">Go to Foo</router-link>
+        <router-link to="/bar">Go to Bar</router-link>
+        <router-link to="/about">About</router-link>
+      </p>
+      <router-view></router-view>
+    </div>
+    <script>
+      const Foo = {
+        template: "<div>foo <button @click='onclick'>Click me</button></div>",
+        methods: {
+          onclick() {
+            console.log("当前路由", this.$route);
+            console.log(this.$router === router);
+          },
+        },
+      };
+      const Bar = { template: "<div>bar</div>" };
+      const About = {
+        template: `<div>About 
+            <router-link to='/'>Go Home</router-link> 
+            <button @click='goHome'>Go Home 2</button>
+            <button @click="goBack">Go Back</button>
+            <button @click="goForward">Go Forward</button>
+        </div>`,
+        methods: {
+          goHome() {
+            this.$router.push("/");
+          },
+          goBack() {
+            if (window.history.length > 1) {
+              this.$router.go(-1);
+            } else {
+              alert("No history");
+            }
+          },
+          goForward() {
+            this.$router.go(1);
+          },
+        },
+      };
+
+      const routes = [
+        { path: "/foo", component: Foo },
+        { path: "/bar", component: Bar },
+        { path: "/about", component: About },
+      ];
+
+      const router = new VueRouter({
+        routes,
+      });
+
+      const vm = new Vue({
+        router,
+      }).$mount("#app");
+    </script>
+  </body>
+</html>
