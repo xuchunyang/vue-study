@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pass prop to route view</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+  </head>
+  <body>
+    <div id="app">
+      <router-link to="/xcy">/xcy</router-link>
+      <router-view></router-view>
+    </div>
+    <script>
+      const router = new VueRouter({
+        routes: [
+          {
+            path: "/:id",
+            component: {
+              props: ["id"],
+              template: "<h1>User {{ id }}</h1>",
+            },
+            // props: true,
+            // props: { id: "hello" },
+            props: (route) => {
+              return { id: route.params.id + "!!!" };
+            },
+          },
+        ],
+      });
+      const vm = new Vue({
+        el: "#app",
+        router,
+      });
+    </script>
+  </body>
+</html>
