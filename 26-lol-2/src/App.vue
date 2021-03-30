@@ -110,10 +110,24 @@ figcaption {
   right: 0;
   width: 100%;
   text-align: center;
-  color: #fff;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .grid-item:hover figcaption {
   display: block;
+  z-index: 3;
+}
+
+img {
+  transition: 0.1s;
+  filter: grayscale(0.5);
+}
+
+.grid-item:hover img {
+  filter: none;
+  transform: scale(1.4);
+  position: relative;
+  z-index: 2;
 }
 </style>
