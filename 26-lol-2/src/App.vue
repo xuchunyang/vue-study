@@ -16,12 +16,19 @@
     </div>
     <div class="grid" ref="grid">
       <div v-for="c in champions" :key="c.id" class="grid-item" :data-id="c.id">
-        <img
-          :src="require(`./assets/${c.id}.png`)"
-          :alt="c.id"
-          width="120"
-          height="120"
-        />
+        <picture class="p-relative">
+          <img
+            :src="require(`./assets/${c.id}.png`)"
+            :alt="c.id"
+            width="120"
+            height="120"
+          />
+          <figcaption class="p-absolute">
+            <span>
+              {{ c.name }}
+            </span>
+          </figcaption>
+        </picture>
       </div>
     </div>
   </div>
@@ -92,12 +99,21 @@ export default {
 <style src="spectre.css/dist/spectre.css"></style>
 
 <style>
-/* body {
-  max-width: 1000px;
-  margin: 1em auto 3em auto;
+.grid-item {
+  width: 120px;
+  height: 120px;
 }
 
-.grid-item {
-  margin-right: 5px;
-} */
+figcaption {
+  display: none;
+  bottom: 1px;
+  right: 0;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+
+.grid-item:hover figcaption {
+  display: block;
+}
 </style>
