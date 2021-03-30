@@ -20,7 +20,7 @@ export default {
 
 <style>
 #app {
-  margin-top: 1em;
+  margin: 1em 0;
   text-align: center;
 }
 </style>

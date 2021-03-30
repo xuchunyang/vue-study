@@ -35,16 +35,42 @@
           </tr>
         </tbody>
       </table>
-      <ul class="nav-page">
-        <li v-for="i in totalPages" :key="i">
-          <button
-            :class="['btn', 'btn-action', i === pageNumber ? 'active' : '']"
-            @click="pageNumber = i"
-          >
-            {{ i }}
-          </button>
-        </li>
-      </ul>
+      <nav>
+        <ul class="nav-page">
+          <li>
+            <button
+              :class="[
+                'btn',
+                'btn-action',
+                pageRange.includes(1) ? 'disabled' : '',
+              ]"
+              @click="backwardPage"
+            >
+              <i class="icon icon-arrow-left"></i>
+            </button>
+          </li>
+          <li v-for="i in pageRange" :key="i">
+            <button
+              :class="['btn', 'btn-action', i === pageNumber ? 'active' : '']"
+              @click="pageNumber = i"
+            >
+              {{ i }}
+            </button>
+          </li>
+          <li>
+            <button
+              :class="[
+                'btn',
+                'btn-action',
+                pageRange.includes(totalPages) ? 'disabled' : '',
+              ]"
+              @click="forwardPage"
+            >
+              <i class="icon icon-arrow-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
@@ -81,6 +107,20 @@ export default {
     totalPages() {
       return Math.ceil(this.matchingPackages.length / this.pageLength);
     },
+    pageRange() {
+      let start = this.pageNumber - 3;
+      if (start < 1) start = 1;
+
+      let end = this.pageNumber + 3 + (3 - (this.pageNumber - start));
+      console.log(start, end);
+      if (end > this.totalPages) end = this.totalPages;
+
+      if (end - this.pageNumber < 3) {
+        start -= 3 - (end - this.pageNumber);
+        if (start < 1) start = 1;
+      }
+      return _.range(start, end + 1);
+    },
   },
   watch: {
     q() {
@@ -108,6 +148,17 @@ export default {
       }
 
       console.log(`Searching for "${this.q}" ...done in ${new Date() - start}`);
+    },
+    _forwardPage(n = 1) {
+      this.pageNumber += n * 7;
+      if (this.pageNumber < 1) this.pageNumber = 1;
+      if (this.pageNumber > this.totalPages) this.pageNumber = this.totalPages;
+    },
+    forwardPage() {
+      this._forwardPage();
+    },
+    backwardPage() {
+      this._forwardPage(-1);
     },
   },
   created() {
@@ -152,9 +203,15 @@ export default {
   color: #666;
 }
 
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 ul.nav-page {
   list-style: none;
-  margin: 2em 0;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
 }
