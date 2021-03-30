@@ -147,6 +147,9 @@ export default {
         });
       }
 
+      // reset after each search
+      this.pageNumber = 1;
+
       console.log(`Searching for "${this.q}" ...done in ${new Date() - start}`);
     },
     _forwardPage(n = 1) {
