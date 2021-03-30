@@ -12,13 +12,17 @@
         >
       </h2>
       <input
+        autocomplete="off"
+        v-model="q"
         type="search"
         name="q"
         id="search"
         class="form-input"
         placeholder="Search package by name and description"
       />
-      <div class="search-result-tip"></div>
+      <div class="search-result-tip text-left text-small m-2">
+        {{ matchingPackages.length }} matching packages
+      </div>
       <table class="table table-striped table-hover">
         <thead>
           <tr>
@@ -26,7 +30,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="p in packages" :key="p.name">
+          <tr v-for="p in matchingPackages" :key="p.name">
             <td v-for="(val, f) in p" :key="f">{{ val }}</td>
           </tr>
         </tbody>
@@ -41,7 +45,7 @@ import Debug from "debug";
 const debug = Debug("melpa");
 debug("not work???");
 
-import { sumBy } from "lodash";
+import _ from "lodash";
 
 export default {
   name: "PackageList",
@@ -50,11 +54,41 @@ export default {
       loading: false,
       fields: ["name", "version", "desc", "downloads"],
       packages: [],
+      matchingPackages: [],
+      q: "",
     };
   },
   computed: {
     totalDownloads() {
-      return sumBy(this.packages, "downloads").toLocaleString();
+      return _.sumBy(this.packages, "downloads").toLocaleString();
+    },
+  },
+  watch: {
+    q() {
+      this.debouncedSearchPackages();
+    },
+  },
+  methods: {
+    searchPackages() {
+      const start = new Date();
+      console.log(`Searching for "${this.q}" ...`);
+
+      const q = this.q;
+      if (q === "" || q.trim() === "") {
+        this.matchingPackages = this.packages;
+      } else {
+        const terms = q.trim().toLowerCase().split(/\s+/);
+        this.matchingPackages = this.packages.filter((p) => {
+          return _.every(
+            terms,
+            (t) =>
+              p.name.toLowerCase().includes(t) ||
+              p.desc.toLowerCase().includes(t)
+          );
+        });
+      }
+
+      console.log(`Searching for "${this.q}" ...done in ${new Date() - start}`);
     },
   },
   created() {
@@ -77,6 +111,8 @@ export default {
           }
           return pkg;
         });
+        this.searchPackages();
+        this.debouncedSearchPackages = _.debounce(this.searchPackages, 150);
         this.loading = false;
       });
   },
@@ -84,8 +120,16 @@ export default {
 </script>
 
 <style scoped>
+.loading {
+  margin-top: 40vh;
+}
+
 .total-downloads {
   font-size: 65%;
+  color: #666;
+}
+
+.search-result-tip {
   color: #666;
 }
 </style>
