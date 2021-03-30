@@ -92,16 +92,16 @@ import _ from "lodash";
 
 export default {
   name: "PackageList",
-  props: ["iq"], // initial-query
+  props: ["queryFromURL", "pageNumberFromURL"],
   data() {
     return {
       loading: false,
       fields: ["name", "version", "desc", "downloads"],
       packages: [],
       matchingPackages: [],
-      pageNumber: 1,
+      pageNumber: this.pageNumberFromURL ? parseInt(this.pageNumberFromURL) : 1,
       pageLength: 50,
-      q: this["iq"] || "",
+      q: this.queryFromURL || "",
     };
   },
   computed: {
@@ -137,6 +137,7 @@ export default {
     },
   },
   methods: {
+    // todo update page number
     updateURL() {
       const params = new URLSearchParams(location.search);
       if (this.q !== "") {
@@ -160,7 +161,7 @@ export default {
       }
     },
 
-    searchPackages() {
+    searchPackages(keepPageNumber = false) {
       const start = new Date();
       console.log(`Searching for "${this.q}" ...`);
 
@@ -182,7 +183,9 @@ export default {
       }
 
       // reset after each search
-      this.pageNumber = 1;
+      if (!keepPageNumber) {
+        this.pageNumber = 1;
+      }
 
       console.log(`Searching for "${this.q}" ...done in ${new Date() - start}`);
     },
@@ -221,7 +224,7 @@ export default {
           }
           return pkg;
         });
-        this.searchPackages();
+        this.searchPackages(true);
         this.debouncedSearchPackages = _.debounce(this.searchPackages, 150);
         this.loading = false;
       });

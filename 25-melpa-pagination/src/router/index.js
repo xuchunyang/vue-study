@@ -10,7 +10,12 @@ const routes = [
     path: "/",
     name: "PackageList",
     component: PackageList,
-    props: (route) => ({ iq: route.query.q }),
+    props: (route) => {
+      return {
+        queryFromURL: route.query.q,
+        pageNumberFromURL: route.query.page,
+      };
+    },
   },
   {
     path: "/about",
