@@ -1,8 +1,8 @@
 <template>
-  <div class="package-list container grid-lg">
+  <div class="package-list">
     <div v-if="loading">
       <div class="loading loading-lg"></div>
-      <p class="my-2">{{ loading }}</p>
+      <p class="my-2 text-center">{{ loading }}</p>
     </div>
     <div v-else>
       <h2>
@@ -31,7 +31,15 @@
         </thead>
         <tbody>
           <tr v-for="p in matchingPackagesForCurrentPage" :key="p.name">
-            <td v-for="(val, f) in p" :key="f">{{ val }}</td>
+            <td v-for="(val, f) in p" :key="f">
+              <router-link
+                v-if="f === 'name'"
+                class="btn btn-link"
+                :to="`/package/${val}`"
+                >{{ val }}</router-link
+              >
+              <span v-else> {{ val }} </span>
+            </td>
           </tr>
         </tbody>
       </table>

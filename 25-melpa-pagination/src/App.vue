@@ -1,26 +1,27 @@
 <template>
-  <div id="app">
-    <package-list></package-list>
+  <div id="app" class="container grid-lg mb-2">
+    <header class="navbar">
+      <section class="navbar-section">
+        <router-link class="btn btn-link" to="/">Home</router-link>
+        <router-link class="btn btn-link" to="/about">About</router-link>
+      </section>
+    </header>
+    <router-view />
   </div>
 </template>
 
-<script>
-import PackageList from "./components/PackageList.vue";
-
-export default {
-  name: "App",
-  components: {
-    PackageList,
-  },
-};
-</script>
-
 <style src="spectre.css/dist/spectre.css"></style>
 <style src="spectre.css/dist/spectre-icons.css"></style>
-
 <style>
-#app {
-  margin: 1em 0;
-  text-align: center;
+.navbar {
+  margin-bottom: 1em;
 }
+
+.navbar-section *:last-child {
+  margin-left: auto;
+}
+
+/* .navbar a.router-link-exact-active {
+  color: #42b983;
+} */
 </style>
