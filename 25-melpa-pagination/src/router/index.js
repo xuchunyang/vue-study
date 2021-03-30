@@ -10,6 +10,7 @@ const routes = [
     path: "/",
     name: "PackageList",
     component: PackageList,
+    props: (route) => ({ iq: route.query.q }),
   },
   {
     path: "/about",

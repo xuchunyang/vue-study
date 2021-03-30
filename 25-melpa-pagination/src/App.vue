@@ -2,7 +2,7 @@
   <div id="app" class="container grid-lg mb-2">
     <header class="navbar">
       <section class="navbar-section">
-        <router-link class="btn btn-link" to="/">Home</router-link>
+        <router-link class="btn btn-link" to="/" :q="''">Home</router-link>
         <router-link class="btn btn-link" to="/about">About</router-link>
       </section>
     </header>

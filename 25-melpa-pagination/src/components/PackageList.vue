@@ -92,15 +92,16 @@ import _ from "lodash";
 
 export default {
   name: "PackageList",
+  props: ["iq"], // initial-query
   data() {
     return {
       loading: false,
       fields: ["name", "version", "desc", "downloads"],
       packages: [],
       matchingPackages: [],
-      q: "",
       pageNumber: 1,
       pageLength: 50,
+      q: this["iq"] || "",
     };
   },
   computed: {
@@ -136,9 +137,34 @@ export default {
     },
   },
   methods: {
+    updateURL() {
+      const params = new URLSearchParams(location.search);
+      if (this.q !== "") {
+        params.set("q", this.q);
+        window.history.replaceState(
+          {},
+          "",
+          `${window.location.pathname}?${params}`
+        );
+      } else if (params.has("q")) {
+        params.delete("q");
+        if (params.toString()) {
+          window.history.replaceState(
+            {},
+            "",
+            `${window.location.pathname}?${params}`
+          );
+        } else {
+          window.history.replaceState({}, "", `${window.location.pathname}`);
+        }
+      }
+    },
+
     searchPackages() {
       const start = new Date();
       console.log(`Searching for "${this.q}" ...`);
+
+      this.updateURL();
 
       const q = this.q;
       if (q === "" || q.trim() === "") {
@@ -176,6 +202,9 @@ export default {
     // debug not work
     debug("PackageList created");
     console.log("PackageList created");
+
+    console.log("route = ", this.$route);
+    console.log(this["iq"]);
 
     const apiUrl =
       "https://study-1258907199.cos.ap-nanjing.myqcloud.com/melpa.json";
