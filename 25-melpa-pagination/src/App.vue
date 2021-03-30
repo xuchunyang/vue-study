@@ -1,20 +1,21 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <package-list></package-list>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import PackageList from "./components/PackageList.vue";
 
 export default {
   name: "App",
   components: {
-    HelloWorld,
+    PackageList,
   },
 };
 </script>
+
+<style src="spectre.css/dist/spectre.css"></style>
 
 <style>
 #app {
