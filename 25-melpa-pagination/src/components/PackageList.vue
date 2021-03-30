@@ -30,12 +30,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="p in matchingPackages" :key="p.name">
+          <tr v-for="p in matchingPackagesForCurrentPage" :key="p.name">
             <td v-for="(val, f) in p" :key="f">{{ val }}</td>
           </tr>
         </tbody>
       </table>
-      <nav></nav>
+      <ul class="nav-page">
+        <li v-for="i in totalPages" :key="i">
+          <button
+            :class="['btn', 'btn-action', i === pageNumber ? 'active' : '']"
+            @click="pageNumber = i"
+          >
+            {{ i }}
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -56,11 +65,21 @@ export default {
       packages: [],
       matchingPackages: [],
       q: "",
+      pageNumber: 1,
+      pageLength: 50,
     };
   },
   computed: {
     totalDownloads() {
       return _.sumBy(this.packages, "downloads").toLocaleString();
+    },
+    matchingPackagesForCurrentPage() {
+      const start = (this.pageNumber - 1) * this.pageLength;
+      const end = start + this.pageLength;
+      return this.matchingPackages.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.matchingPackages.length / this.pageLength);
     },
   },
   watch: {
@@ -131,5 +150,12 @@ export default {
 
 .search-result-tip {
   color: #666;
+}
+
+ul.nav-page {
+  list-style: none;
+  margin: 2em 0;
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>

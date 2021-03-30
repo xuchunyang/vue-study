@@ -16,6 +16,7 @@ export default {
 </script>
 
 <style src="spectre.css/dist/spectre.css"></style>
+<style src="spectre.css/dist/spectre-icons.css"></style>
 
 <style>
 #app {
